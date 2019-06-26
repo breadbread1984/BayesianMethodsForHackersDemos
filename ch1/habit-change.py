@@ -37,7 +37,7 @@ def main():
     # convert from float to day count
     tau_samples = tf.math.floor(tau_samples * count_data.shape[0]);
 
-    print('acceptance rate: %f' % tf.math.reduce_mean(kernel_results.inner_results.is_accepted));
+    print('acceptance rate: %f' % tf.math.reduce_mean(tf.cast(kernel_results.inner_results.is_accepted, dtype = tf.float32)));
     print('final step size: %f' % tf.math.reduce_mean(kernel_results.inner_results.extra.step_size_assign[-100:]));
 
     # visualize
