@@ -77,9 +77,10 @@ def log_prob_generator(occurrencesA, occurrencesB):
         # log p(occurrencesA, occurrencesB, probA, probB)
         #  = sum csub {occurrenceA_i} log p(occurrenceA_i | probA) + log p(probA)
         #  + sum csub {occurrenceB_i} log p(occurrenceB_i | probB) + log p(probB)
-        return probA_dist.log_prob(probA) + probB_dist.log_prob(probB)
-               + tf.math.reduce_sum(occurrencsA.log_prob(occurrencesA))
-               + tf.math.reduce_sum(occurrencsB.log_prob(occurrencesB));
+        return probA_dist.log_prob(probA) + probB_dist.log_prob(probB) \
+               + tf.math.reduce_sum(occurrenceA_dist.log_prob(occurrencesA)) \
+               + tf.math.reduce_sum(occurrenceB_dist.log_prob(occurrencesB));
+    return func;
 
 if __name__ == "__main__":
 
