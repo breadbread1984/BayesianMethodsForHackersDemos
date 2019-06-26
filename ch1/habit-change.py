@@ -62,7 +62,7 @@ def main():
     plt.subplot(313);
     w = 1.0 / tau_samples.shape[0] * tf.ones_like(tau_samples);
     plt.hist(tau_samples, bins = count_data.shape[0], alpha = 1, label = r"posterior of $\tau$", color = '#60BD68', weights = w, rwidth = 2.)
-    plt.xticks(tf.arange(count_data.shape[0]));
+    plt.xticks(tf.range(count_data.shape[0]));
 
     plt.legend(loc = "upper left");
     plt.ylim([0, .75]);
