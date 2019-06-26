@@ -30,7 +30,7 @@ def main():
         )
     );
     
-    print('acceptance rate: %f' % tf.math.reduce_mean(kernel_results.inner_results.is_accepted));
+    print('acceptance rate: %f' % tf.math.reduce_mean(tf.cast(kernel_results.inner_results.is_accepted, dtype = tf.float32)));
     
     probs = probs[25000:];
     
