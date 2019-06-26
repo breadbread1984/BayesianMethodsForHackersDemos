@@ -62,8 +62,8 @@ def main():
     plt.vlines(0, 0, 60, color = "black", alpha = 0.2);
     plt.legend(loc = "upper right");
     
-    better = tf.math.reduce_sum(tf.where(tf.greater(deltas,0), deltas, tf.zeros_like(deltas))) / tf.math.reduce_sum(tf.cast(tf.greater(deltas,0), dtype = tf.float32));
-    worse = tf.math.reduce_sum(tf.where(tf.less(deltas,0), deltas, tf.zeros_like(deltas))) / tf.math.reduce_sum(tf.cast(tf.less(deltas,0), dtype = tf.float32));
+    better = tf.math.reduce_mean(tf.where(tf.greater(deltas,0), tf.ones_like(deltas, dtype = tf.float32), tf.zeros_like(deltas, dtype = tf.float32)));
+    worse = tf.math.reduce_mean(tf.where(tf.less(deltas,0), tf.ones_like(deltas, dtype = tf.float32), tf.zeros_like(deltas, dtype = tf.float32)));
     print('Probability site A is WORSE than site B: %.3f' % worse);
     print('Probability site A is BETTER than site B: %.3f' % better);
     
