@@ -36,7 +36,7 @@ def main():
     
     plt.figure(figsize(12.5, 4));
     plt.title('Posterior distribution of $p_A$, the true effectiveness of site A');
-    plt.vline(.05, 0, 90, linestyle = '--', label = 'true $p_A$ (unknown)');
+    plt.vlines(.05, 0, 90, linestyle = '--', label = 'true $p_A$ (unknown)');
     plt.hist(probs, bins = 25, histtype = 'stepfilled', normed = True);
     plt.legend();
     plt.show();
@@ -45,7 +45,7 @@ def log_prob_generator(occurrences):
     # return log joint prob: log P(occurrences, prob)
     def func(prob):
         # p(prob)
-        prob_dist = tfp.distributions.Uniform(low = 0., high=1.);
+        prob_dist = tfp.distributions.Uniform(low = 0., high = 1.);
         # p(occurrence | prob)
         occurrence_dist = tfp.distributions.Bernoulli(probs = prob);
         # log p(occurrences, prob) = sum csub {occurrence_i} log p(occurrence_i | prob) + log p(prob)
