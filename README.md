@@ -3,7 +3,7 @@ simplified demos in book bayesian methods for hackers
 
 ## Introduction
 
-the demo programs in the book is scattered and a little lengthy. this project provides a trimmed demos dedicated for TF 2.0.
+the demo programs in the book is scattered and a little lengthy. this project provides trimmed demos dedicated for TF 2.0.
 
 ## How to install tensorflow probability
 
