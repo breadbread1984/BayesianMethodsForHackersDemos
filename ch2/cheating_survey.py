@@ -34,7 +34,6 @@ def main():
     
     plt.figure(figsize(12.5, 6));
     plt.hist(actual_cheat_prob, histtype = "stepfilled", density = True, alpha = 0.85, bins = 30, label = "posterior distribution", color = '#5DA5DA');
-    plt.vlines([.1, .40], [0, 0], [5, 5], alpha = 0.3);
     plt.xlim(0, 1);
     plt.legend();
     plt.show();
