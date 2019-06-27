@@ -15,16 +15,22 @@ def main():
     second_toss = tfp.distributions.Bernoulli(probs = 0.5).sample(100);
     alleged_cheat_num = tf.cast(tf.math.reduce_sum(first_toss * cheated + (1 - first_toss) * second_toss), dtype = tf.float32);
     
+    step_size = tf.Variable(0.5, dtype = tf.float32, trainable = False);
     # inference the cheat prob from the data
     [actual_cheat_prob], kernel_results = tfp.mcmc.sample_chain(
-        num_results = 40000,
-        num_burnin_steps = 15000,
-        current_state = [tf.constant(0.4)],
-        kernel = tfp.mcmc.RandomWalkMetropolis(
-            target_log_prob_fn = log_prob_generator(alleged_cheat_num),
-            seed = 54
-        ),
-        parallel_iterations = 1
+        num_results = 25000,
+        num_burnin_steps = 2500,
+        current_state = [tf.constant(0.2)],
+        kernel = tfp.mcmc.TransformedTransitionKernel(
+            inner_kernel = tfp.mcmc.HamiltonianMonteCarlo(
+                target_log_prob_fn = log_prob_generator(alleged_cheat_num),
+                num_leapfrog_steps = 2,
+                step_size = step_size,
+                step_size_update_fn = tfp.mcmc.make_simple_step_size_update_policy(num_adaptation_steps = 2000),
+                state_gradients_are_stopped = True
+            ),
+            bijector = [tfp.bijectors.Sigmoid()]
+        )
     );
 
     print('acceptance rate: %f' % tf.math.reduce_mean(tf.cast(kernel_results.is_accepted, dtype = tf.float32)));
