@@ -33,17 +33,17 @@ def main():
         )
     );
 
-    print('acceptance rate: %f' % tf.math.reduce_mean(tf.cast(kernel_results.is_accepted, dtype = tf.float32)));
+    print('acceptance rate: %f' % tf.math.reduce_mean(tf.cast(kernel_results.inner_results.is_accepted, dtype = tf.float32)));
 
     # get burned samples
     actual_cheat_prob = actual_cheat_prob[15000:];
-    
+
     plt.figure(figsize(12.5, 6));
     plt.hist(actual_cheat_prob, histtype = "stepfilled", density = True, alpha = 0.85, bins = 30, label = "posterior distribution", color = '#5DA5DA');
     plt.xlim(0, 1);
     plt.legend();
     plt.show();
-    
+
 def log_prob_generator(alleged_cheat_num):
     # return log joint prob: log P(answers, cheated, first_toss, second_toss, cheat prob, cheat_num)
     def func(cheat_prob):
