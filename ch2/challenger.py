@@ -44,7 +44,7 @@ def main():
 
     plt.figure(figsize(12.5, 6))
 
-    #histogram of the samples:
+    #histogram of the distributions of parameter alpha and beta:
     plt.subplot(211);
     plt.title(r"Posterior distributions of the variables $\alpha, \beta$");
     plt.hist(beta, histtype = 'stepfilled', bins = 35, alpha = 0.85, label = r"posterior of $\beta$", color = '#B276B2', density = True)
@@ -53,6 +53,31 @@ def main():
     plt.subplot(212);
     plt.hist(alpha, histtype = 'stepfilled', bins = 35, alpha = 0.85, label = r"posterior of $\alpha$", color = '#F15854', density = True)
     plt.legend();
+    
+    plt.show();
+    
+    # plot regressed function with the origin al data
+    alpha_mean = tf.math.reduce_mean(alpha);
+    beta_mean = tf.math.reduce_mean(beta);
+    
+    def logistic(x, alpha, beta):
+        return 1.0 / (1.0 + tf.math.exp(beta * x + alpha));
+    
+    temps = tf.linspace(tf.math.reduce_min(temperatures) - 5, tf.math.reduce_max(temperatures) + 5 , 2500);
+    probs = logistic(temps, alpha_mean, beta_mean);
+    
+    plt.figure(figsize(12.5, 4))
+
+    plt.plot(temps, probs, lw = 3, label = "average posterior \nprobability of defect");
+    plt.plot(temps, probs, ls = "--", label = "realization from posterior");
+    plt.plot(temps, probs[-8], ls = "--", label = "realization from posterior");
+    plt.scatter(temperatures, failures, color = "k", s = 50, alpha = 0.5);
+    plt.title("Posterior expected value of probability of defect; plus realizations");
+    plt.legend(loc = "lower left");
+    plt.ylim(-0.1, 1.1);
+    plt.xlim(temps[0], temps[-1]);
+    plt.ylabel("probability");
+    plt.xlabel("temperature");
     
     plt.show();
 
