@@ -60,8 +60,8 @@ def main():
     alpha_mean = tf.math.reduce_mean(alpha);
     beta_mean = tf.math.reduce_mean(beta);
     
-    def logistic(x, alpha, beta):
-        return 1.0 / (1.0 + tf.math.exp(beta * x + alpha));
+    def logistic(x, a, b):
+        return 1.0 / (1.0 + tf.math.exp(b * x + a));
     
     temps = tf.linspace(tf.math.reduce_min(temperatures) - 5, tf.math.reduce_max(temperatures) + 5 , 2500);
     probs_mean = logistic(temps, alpha_mean, beta_mean);
