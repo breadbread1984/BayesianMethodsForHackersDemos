@@ -64,12 +64,13 @@ def main():
         return 1.0 / (1.0 + tf.math.exp(beta * x + alpha));
     
     temps = tf.linspace(tf.math.reduce_min(temperatures) - 5, tf.math.reduce_max(temperatures) + 5 , 2500);
-    probs = logistic(temps, alpha_mean, beta_mean);
+    probs_mean = logistic(temps, alpha_mean, beta_mean);
+    probs = logistic(temps, alpha, beta);
     
     plt.figure(figsize(12.5, 4));
 
-    plt.plot(temps, probs, lw = 3, label = "average posterior \nprobability of defect");
-    plt.plot(temps, probs, ls = "--", label = "realization from posterior");
+    plt.plot(temps, probs_mean, lw = 3, label = "average posterior \nprobability of defect");
+    plt.plot(temps, probs[0], ls = "--", label = "realization from posterior");
     plt.plot(temps, probs[-8], ls = "--", label = "realization from posterior");
     plt.scatter(temperatures, failures, color = "k", s = 50, alpha = 0.5);
     plt.title("Posterior expected value of probability of defect; plus realizations");
