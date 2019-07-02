@@ -44,7 +44,9 @@ def main():
     print('mean of lambda_1 is %f' % tf.math.reduce_mean(lambda1_samples));
     print('mean of lambda_2 is %f' % tf.math.reduce_mean(lambda2_samples));
     print('expected percentage increase is %f' % tf.math.reduce_mean(lambda1_samples / lambda2_samples));
-    print('mean of lambda_1 when tau is less than 45 is %f' % tf.math.reduce_mean(tf.gather(lambda1_samples, indices = tf.less(tau_samples,45.))));
+    count = tf.math.reduce_sum(tf.cast(tf.less(tau_samples, 45.), dtype = tf.float32));
+    lambda1_sum = tf.math.reduce_sum(tf.where(tf.less(tau_samples, 45.), lambda: lambda1_samples, lambda: tf.zeros_like(lambda1_samples)));
+    print('mean of lambda_1 when tau is less than 45 is %f' % lambda1_sum / count);
 
 def log_prob_generator(count_data):
     # return log join prob: log P(data, lambda1, lambda2, tau)
