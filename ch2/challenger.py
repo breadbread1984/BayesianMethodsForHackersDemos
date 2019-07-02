@@ -65,7 +65,7 @@ def main():
     
     temps = tf.linspace(tf.math.reduce_min(temperatures) - 5, tf.math.reduce_max(temperatures) + 5 , 2500);
     probs_mean = logistic(temps, alpha_mean, beta_mean);
-    probs = logistic(temps, alpha, beta);
+    probs = logistic(tf.expand_dims(temps,0), tf.expand_dims(alpha,1), tf.expand_dims(beta,1));
     
     plt.figure(figsize(12.5, 4));
 
