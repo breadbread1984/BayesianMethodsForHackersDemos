@@ -76,7 +76,7 @@ def main():
     plt.title("Posterior expected value of probability of defect; plus realizations");
     plt.legend(loc = "lower left");
     plt.ylim(-0.1, 1.1);
-    plt.xlim(temps[0], temps[-1]);
+    plt.xlim(temps[0].numpy(), temps[-1].numpy());
     plt.ylabel("probability");
     plt.xlabel("temperature");
     
