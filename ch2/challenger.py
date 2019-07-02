@@ -44,7 +44,7 @@ def main():
 
     plt.figure(figsize(12.5, 6))
 
-    #histogram of the distributions of parameter alpha and beta:
+    # 1) histogram of the distributions of parameter alpha and beta:
     plt.subplot(211);
     plt.title(r"Posterior distributions of the variables $\alpha, \beta$");
     plt.hist(beta, histtype = 'stepfilled', bins = 35, alpha = 0.85, label = r"posterior of $\beta$", color = '#B276B2', density = True)
@@ -56,7 +56,7 @@ def main():
     
     plt.show();
     
-    # plot regressed function with the origin al data
+    # 2) plot regressed function with the original data
     alpha_mean = tf.math.reduce_mean(alpha);
     beta_mean = tf.math.reduce_mean(beta);
     
@@ -66,7 +66,7 @@ def main():
     temps = tf.linspace(tf.math.reduce_min(temperatures) - 5, tf.math.reduce_max(temperatures) + 5 , 2500);
     probs = logistic(temps, alpha_mean, beta_mean);
     
-    plt.figure(figsize(12.5, 4))
+    plt.figure(figsize(12.5, 4));
 
     plt.plot(temps, probs, lw = 3, label = "average posterior \nprobability of defect");
     plt.plot(temps, probs, ls = "--", label = "realization from posterior");
@@ -80,6 +80,16 @@ def main():
     plt.xlabel("temperature");
     
     plt.show();
+    
+    # sample regressed function values at all temperatures
+    probs = tfp.distributions.Deterministic(loc = 1. / (1. + tf.math.exp(beta_mean * temps + alpha_mean))).sample();
+    # sample 1000 sets of bernoulli random values at all temperatures
+    failures = tfp.distributions.Bernoulli(probs = probs).sample(sample_shape = 1000);
+    # reduce to 1 set of bernoulli random values at all temperatures
+    failures_mean = tf.math.reduce_mean(failures, axis = 0);
+    
+    # 3) draw separation plot
+    separation_plot(probs, failures_mean);
 
 def log_prob_generator(temperatures,failures):
     
@@ -91,6 +101,34 @@ def log_prob_generator(temperatures,failures):
         return beta_dist.log_prob(beta) + alpha_dist.log_prob(alpha) \
             + tf.math.reduce_sum(failure_dists.log_prob(failures));
     return func;
+
+def separation_plot(p, y):
+    """
+    This function creates a separation plot for logistic and probit classification. 
+    See http://mdwardlab.com/sites/default/files/GreenhillWardSacks.pdf
+    
+    p: The proportions/probabilities, can be a nxM matrix which represents M models.
+    y: the 0-1 response variables.
+    
+    """    
+    assert p.shape[0] == y.shape[0], "p.shape[0] != y.shape[0]";
+
+    colors_bmh = ["#eeeeee", "#348ABD"];
+
+    fig = plt.figure();
+    ax = fig.add_subplot(1, 1, 1);
+    ix = tf.argsort(p);
+    #plot the different bars
+    bars = ax.bar(tf.range(p.shape[0]), tf.ones_like(p), width = 1., color = colors_bmh[tf.gather(y,ix)], edgecolor = 'none');
+    ax.plot(tf.range(p.shape[0] + 1), tf.gather(p,tf.concat([ix,[ix[-1]]], axis = -1)), "k", linewidth = 1., drawstyle = "steps-post");
+    #create expected value bar.
+    ax.vlines([tf.math.reduce_sum(1 - tf.gather(p,ix))], [0], [1]);
+    plt.xlim(0, p.shape[0]);
+
+    plt.tight_layout();
+    plt.show();
+    
+    return
 
 if __name__ == "__main__":
 
