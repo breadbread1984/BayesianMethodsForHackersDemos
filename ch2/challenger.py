@@ -120,11 +120,11 @@ def separation_plot(p, y):
     ax = fig.add_subplot(1, 1, 1);
     ix = tf.argsort(p);
     #plot the different bars
-    bars = ax.bar(tf.range(p.shape[0]), tf.ones_like(p), width = 1., color = colors_bmh[tf.gather(y,ix)], edgecolor = 'none');
-    ax.plot(tf.range(p.shape[0] + 1), tf.gather(p,tf.concat([ix,[ix[-1]]], axis = -1)), "k", linewidth = 1., drawstyle = "steps-post");
+    bars = ax.bar(tf.range(p.shape[0]).numpy(), tf.ones_like(p).numpy(), width = 1., color = colors_bmh[tf.gather(y,ix).numpy()], edgecolor = 'none');
+    ax.plot(tf.range(p.shape[0] + 1).numpy(), tf.gather(p,tf.concat([ix,[ix[-1]]], axis = -1)).numpy(), "k", linewidth = 1., drawstyle = "steps-post");
     #create expected value bar.
-    ax.vlines([tf.math.reduce_sum(1 - tf.gather(p,ix))], [0], [1]);
-    plt.xlim(0, p.shape[0]);
+    ax.vlines([tf.math.reduce_sum(1 - tf.gather(p,ix)).numpy()], [0], [1]);
+    plt.xlim(0, p.shape[0].numpy());
 
     plt.tight_layout();
     plt.show();
