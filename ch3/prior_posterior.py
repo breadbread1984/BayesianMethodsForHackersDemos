@@ -35,6 +35,7 @@ def main():
     plt.figure(figsize(12.5, 15.0));
 
     # 1) plot P(lambda1, lambda2) = P(lambda1) * P(lambda2)
+    # lambda ~ Uniform(0, 5)
     plt.subplot(221);
     im = plt.imshow(M.numpy(), interpolation = 'none', origin = 'lower', cmap = plt.cm.jet, vmax = 1, vmin = -.15, extent = (0, 5, 0, 5));
     plt.scatter(lambda2.numpy(), lambda1.numpy(), c = 'k', s = 50, edgecolor = 'none');
@@ -44,11 +45,35 @@ def main():
     # 2) plot P(lambda1, lambda2, data) = p(lambda1, lambda2) * p(data | lambda1, lambda2)
     plt.subplot(223);
     plt.contour(x.numpy(), y.numpy(), (M * L).numpy());
-    im = plt.imshow((M * L).numpy(), interpolation = 'none', origin = 'lower', cmap = plt.cm.jet, extent = (0, 5, 0, 5));
+    im = plt.imshow(M * L, interpolation = 'none', origin = 'lower', cmap = plt.cm.jet, extent = (0, 5, 0, 5));
     plt.title('Landscape warped by %d data observation;\n Uniform priors on $p_1, p_2$.' % 1);
     plt.scatter(lambda2.numpy(), lambda1.numpy(), c = 'k', s = 50, edgecolor = 'none');
     plt.xlim(0, 5);
     plt.ylim(0, 5);
+    # 3) plot P(lambda1, lambda2) = P(lambda1) * P(lambda2)
+    # lambda1 ~ Exponential(0.3)
+    # lambda2 ~ Exponential(0.1)
+    plt.subplot(222);
+    expx = tfp.distributions.Exponential(rate = .3).prob(x);
+    expx = tf.where(tf.math.is_nan(expx),tf.ones_like(expx) * expx[1], expx);
+    expy = tfp.distributions.Exponential(rate = .10).prob(y);
+    expy = tf.where(tf.math.is_nan(expy),tf.ones_like(expy) * expy[1], expy);
+    M = tf.expand_dims(expx,1) * tf.expand_dims(expy,0);
+    plt.contour(x,y,M);
+    im = plt.imshow(M, interpolation = 'none', origin = 'lower', cmap = plt.cm.jet, extent = (0, 5, 0, 5));
+    plt.scatter(lambda2.numpy(), lambda1.numpy(), c = 'k', s = 50, edgecolor = 'none');
+    plt.xlim(0,5);
+    plt.ylim(0,5);
+    plt.title('Landscape formed by Exponential priors on $p_1, p_2$.');
+    # 4) plot P(lambda1, lambda2, data) = P(lambda1, lambda2) * p(data | lambda1, lambda2)
+    plt.subplot(224);
+    plt.contour(x, y, M * L);
+    im = plt.imshow(M * L, interpolation = 'none', origin = 'lower', cmap = plt.cm.jet, extent = (0, 5, 0, 5));
+    plt.title('Landscape warped by %d data objservation; \n Exponential priors on $p_1, p_2$.' % 1);
+    plt.scatter(lambda2.numpy(), lambda1.numpy(), c = 'k', s = 50, edgecolor = 'none');
+    plt.xlim(0, 5);
+    plt.ylim(0, 5);
+    
     plt.show();
 
 def median(x):
