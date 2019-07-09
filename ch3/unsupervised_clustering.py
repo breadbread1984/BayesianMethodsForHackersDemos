@@ -16,8 +16,27 @@ def main():
     filename = wget.download(url);
     data = np.loadtxt(filename, delimiter = ',');
     data = tf.constant(data);
-    # inference the posteriori according to the observation with MCMC
     
+    step_size = tf.Variable(0.5, dtype = tf.float32, trainable = False);
+    # inference the posteriori according to the observation with MCMC
+    [model1_probs, mus, sigmas], kernel_results = tfp.mcmc.sample_chain(
+        num_results = 25000,
+        num_burnin_steps = 1000,
+        current_state = [tf.constant(0.5), tf.constant(120.,190.), tf.constant(10., 10.)],
+        kernel = tfp.mcmc.TransformedTransitionKernel(
+            inner_kernel = tfp.mcmc.HamiltonianMonteCarlo(
+                target_log_prob_fn = log_prob_generator(data),
+                num_leapfrog_steps = 2,
+                step_size = step_size,
+                step_size_update_fn = tfp.mcmc.make_simple_step_size_update_policy(),
+                state_gradients_are_stopped = True
+            ),
+            bijector = [tfp.bijectors.Identity(), tfp.bijectors.Identity(), tfp.bijectors.Identity()]
+        )
+    );
+            
+    print('acceptance rate: %f' % tf.math.reduce_mean(tf.cast(kernel_results.inner_results.is_accepted, dtype = tf.float32)));
+    print('final step size: %f' % tf.math.reduce_mean(kernel_results.inner_results.extra.step_size_assign[-100:]));
 
 def log_prob_generator(data):
     def func(model1_prob, mus, sigmas):
