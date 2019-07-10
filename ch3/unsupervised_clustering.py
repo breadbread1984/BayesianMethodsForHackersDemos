@@ -22,7 +22,7 @@ def main():
     [model1_probs, mus, sigmas], kernel_results = tfp.mcmc.sample_chain(
         num_results = 25000,
         num_burnin_steps = 1000,
-        current_state = [tf.constant(0.5), tf.constant(120.,190.), tf.constant(10., 10.)],
+        current_state = [tf.constant(0.5), tf.constant([120.,190.]), tf.constant([10., 10.])],
         kernel = tfp.mcmc.TransformedTransitionKernel(
             inner_kernel = tfp.mcmc.HamiltonianMonteCarlo(
                 target_log_prob_fn = log_prob_generator(data),
