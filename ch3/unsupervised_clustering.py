@@ -15,7 +15,7 @@ def main():
     url = 'https://raw.githubusercontent.com/CamDavidsonPilon/Probabilistic-Programming-and-Bayesian-Methods-for-Hackers/master/Chapter3_MCMC/data/mixture_data.csv';
     filename = wget.download(url);
     data = np.loadtxt(filename, delimiter = ',');
-    data = tf.constant(data);
+    data = tf.constant(data, dtype = tf.float32);
     
     step_size = tf.Variable(0.5, dtype = tf.float32, trainable = False);
     # inference the posteriori according to the observation with MCMC
@@ -28,7 +28,7 @@ def main():
                 target_log_prob_fn = log_prob_generator(data),
                 num_leapfrog_steps = 2,
                 step_size = step_size,
-                step_size_update_fn = tfp.mcmc.make_simple_step_size_update_policy(),
+                step_size_update_fn = tfp.mcmc.make_simple_step_size_update_policy(num_adaptation_steps = 1000),
                 state_gradients_are_stopped = True
             ),
             bijector = [tfp.bijectors.Identity(), tfp.bijectors.Identity(), tfp.bijectors.Identity()]
@@ -73,7 +73,7 @@ def log_prob_generator(data):
         sigmas_dist = tfp.distributions.Uniform(low = [0., 0.], high = [100., 100.]);
         # distribution of the GMM
         observation_dist = tfp.distributions.MixtureSameFamily(
-            mixture_distribution = tfp.distributions.Categorical(probs = tf.stack([model1_prob, model2_prob])),
+            mixture_distribution = tfp.distributions.Categorical(probs = [model1_prob, model2_prob]),
             components_distribution = tfp.distributions.Normal(loc = mus, scale = sigmas)
         );
         return mixture_prob_dist.log_prob(model1_prob) + \
