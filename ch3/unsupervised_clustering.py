@@ -60,7 +60,7 @@ def main():
 
     # plot mixture probability of GMM.
     plt.subplot(313);
-    plt.plot(model1_probs, label = "$p$: frequency of assignment to cluster 0", c = TFColor[2], lw = 1);
+    plt.plot(model1_probs, label = "$p$: frequency of assignment to cluster 0", c = '#60BD68', lw = 1);
     plt.xlabel("Steps");
     plt.ylim(0, 1);
     plt.legend();
