@@ -34,9 +34,34 @@ def main():
             bijector = [tfp.bijectors.Identity(), tfp.bijectors.Identity(), tfp.bijectors.Identity()]
         )
     );
-            
+
     print('acceptance rate: %f' % tf.math.reduce_mean(tf.cast(kernel_results.inner_results.is_accepted, dtype = tf.float32)));
     print('final step size: %f' % tf.math.reduce_mean(kernel_results.inner_results.extra.step_size_assign[-100:]));
+
+    # plot the samples
+    plt.figure(figsize(12.5, 9));
+    plt.subplot(311);
+    # for pretty colors later in the book.
+    colors = ['#5DA5DA', '#F15854'] if mus[-1, 0] > mus[-1, 1] else ['#F15854', '#5DA5DA'];
+
+    plt.plot(mus[:, 0], label = "trace of center 0", c = colors[0], lw = 1);
+    plt.plot(mus[:, 1], label = "trace of center 1", c = colors[1], lw = 1);
+    plt.title("Traces of unknown parameters");
+    leg = plt.legend(loc="upper right");
+    leg.get_frame().set_alpha(0.7);
+
+    plt.subplot(312);
+    plt.plot(sigmas[:, 0], label = "trace of standard deviation of cluster 0", c = colors[0], lw = 1);
+    plt.plot(sigmas[:, 1], label = "trace of standard deviation of cluster 1", c = colors[1], lw = 1);
+    plt.legend(loc = "upper left");
+
+    plt.subplot(313);
+    plt.plot(model1_probs, label = "$p$: frequency of assignment to cluster 0", c = TFColor[2], lw = 1);
+    plt.xlabel("Steps");
+    plt.ylim(0, 1);
+    plt.legend();
+    
+    plt.show();
 
 def log_prob_generator(data):
     def func(model1_prob, mus, sigmas):
