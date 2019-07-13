@@ -18,6 +18,7 @@ def main():
     data = tf.constant(data, dtype = tf.float32);
     
     step_size = tf.Variable(0.5, dtype = tf.float32, trainable = False);
+    bijectors = [tfp.bijectors.Identity(), tfp.bijectors.Identity(), tfp.bijectors.Identity()];
     # inference the posteriori according to the observation with MCMC
     [model1_probs, mus, sigmas], kernel_results = tfp.mcmc.sample_chain(
         num_results = 25000,
@@ -31,13 +32,12 @@ def main():
                 step_size_update_fn = tfp.mcmc.make_simple_step_size_update_policy(num_adaptation_steps = 1000),
                 state_gradients_are_stopped = True
             ),
-            bijector = [tfp.bijectors.Identity(), tfp.bijectors.Identity(), tfp.bijectors.Identity()]
+            bijector = bijectors
         )
     );
 
     print('acceptance rate: %f' % tf.math.reduce_mean(tf.cast(kernel_results.inner_results.is_accepted, dtype = tf.float32)));
     print('final step size: %f' % tf.math.reduce_mean(kernel_results.inner_results.extra.step_size_assign[-100:]));
-
 
     # plot the samples
     # for pretty colors later in the book.
@@ -64,6 +64,45 @@ def main():
     plt.xlabel("Steps");
     plt.ylim(0, 1);
     plt.legend();
+    
+    plt.show();
+    
+    # sample 50000 extra samples.
+    # inference the posteriori according to the observation with MCMC
+    [model1_probs_extended, mus_extended, sigmas_extended], kernel_results = tfp.mcmc.sample_chain(
+        num_results = 50000,
+        num_burnin_steps = 0,
+        current_state = [model1_probs[-1], mus[-1], sigmas[-1]],
+        kernel = tfp.mcmc.TransformedTransitionKernel(
+            inner_kernel = tfp.mcmc.HamiltonianMonteCarlo(
+                target_log_prob_fn = log_prob_generator(data),
+                num_leapfrog_steps = 2,
+                step_size = step_size,
+                step_size_update_fn = tfp.mcmc.make_simple_step_size_update_policy(num_adaptation_steps = 1000),
+                state_gradients_are_stopped = True
+            ),
+            bijector = bijectors
+        )
+    );
+            
+    print('acceptance rate: %f' % tf.math.reduce_mean(tf.cast(kernel_results.inner_results.is_accepted, dtype = tf.float32)));
+    print('final step size: %f' % tf.math.reduce_mean(kernel_results.inner_results.extra.step_size_assign[-100:]));
+    
+    plt.figure(figsize(12.5, 4));
+    
+    # draw the first 25000 samples
+    x = tf.range(25000);
+    plt.plot(x, mus[:, 0], label = 'previous trace of center 0', lw = 1, alpha = 0.4, c = colors[1]);
+    plt.plot(x, mus[:, 1], label = 'previous trace of center 1', lw = 1, alpha = 0.4, c = colors[0]);
+    # draw the following 50000 samples
+    x = tf.range(25000,75000);
+    plt.plot(x, mus_extended[:,0], label = 'new trace of center 0', lw = 1, c = '#5DA5DA');
+    plt.plot(x, mus_extended[:,1], label = 'new trace of center 1', lw = 1, c = '#F15854');
+    
+    plt.title('Traces of unknown center parameters');
+    leg = plt.legend(loc = 'upper right');
+    leg.get_frame().set_alpha(0.8);
+    plt.xlabel('Steps');
     
     plt.show();
 
