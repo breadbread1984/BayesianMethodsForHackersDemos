@@ -4,6 +4,7 @@ import wget;
 import numpy as np;
 import tensorflow as tf;
 import tensorflow_probability as tfp;
+import matplotlib as mpl;
 import matplotlib.pyplot as plt;
 from IPython.core.pylabtools import figsize;
 
@@ -105,6 +106,39 @@ def main():
     plt.xlabel('Steps');
     
     plt.show();
+    
+    plt.figure(figsize(12.5, 8));
+    for i in range(2):
+        plt.subplot(2, 2, 2 * i + 1);
+        plt.title('Posterior of center of cluster %d' % i);
+        plt.hist(mus_extended[:, i], color = colors[i], bins = 30, histtype = 'stepfilled');
+        
+        plt.subplot(2, 2 , 2 * i + 2);
+        plt.title('Posterior of standard deviation of cluster %d' % i);
+        plt.hist(sigmas_extended[:, 1], color = colors[i], bins = 30, histtype = 'stepfilled');
+    plt.tight_layout();
+    
+    plt.show();
+    
+    dist_0 = tfp.distributions.Normal(loc = tf.math.reduce_mean(mus_extended[:,0]), scale = tf.math.reduce_mean(sigmas_extended[:,0]));
+    dist_1 = tfp.distributions.Normal(loc = tf.math.reduce_mean(mus_extended[:,1]), scale = tf.math.reduce_mean(sigmas_extended[:,1]));
+    prob_assignment_1 = dist_1.prob(data);
+    prob_assignment_2 = dist_2.prob(data);
+    probs_assignments = 1. - (prob_assignment_1 / (prob_assignment_1 + prob_assignment_2));
+    probs_assignments_inv = 1. - probs_assignments;
+    # cluster_probs.shape = (data.shape[0], 2)
+    cluster_probs = tf.transpose(tf.stack([probs_assignments, probs_assignments_inv]));
+    # burned_assignment_trace.shape = (300, data.shape[0])
+    burned_assignment_trace = tfp.distributions.Categorical(probs = cluster_probs).sample(sample_shape = 300);
+
+    plt.figure(figsize(12.5, 5));
+    plt.cmap = mpl.colors.ListedColormap(colors);
+    output = tf.stack([tf.gather(burned_assignment_trace[i,...], tf.argsort(data)) for i in tf.range(burned_assignment_trace.shape[0])]);
+    plt.imshow(output.numpy(), cmap = plt.cmap, aspect = .4, alpha = .9);
+    plt.xticks(tf.range(0,data.shape[0],40).numpy(), ["%.2f" % s for s in tf.sort(data)[::40]]);
+    plt.ylabel('posterior sample');
+    plt.xlabel('value of $i$th data point');
+    plt.title('Posterior labels of data points');
 
 def log_prob_generator(data):
     def func(model1_prob, mus, sigmas):
