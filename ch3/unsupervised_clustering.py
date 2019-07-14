@@ -139,6 +139,17 @@ def main():
     plt.ylabel('posterior sample');
     plt.xlabel('value of $i$th data point');
     plt.title('Posterior labels of data points');
+    
+    plt.show();
+    
+    plt.figure(figsize(12.5, 5));
+    plt.scatter(tf.gather(data, tf.argsort(data)).numpy(), output, cmap = mpl.colors.LinearSegmentedColormap.from_list('BMH', colors), c = (1 - output).numpy(), s = 50);
+    plt.ylim(-.05, 1.05);
+    plt.title('Probability of data point belonging to cluster 0');
+    plt.ylabel('probability');
+    plt.xlabel('value of data point');
+    
+    plt.show();
 
 def log_prob_generator(data):
     def func(model1_prob, mus, sigmas):
