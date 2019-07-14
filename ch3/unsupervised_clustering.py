@@ -143,13 +143,24 @@ def main():
     plt.show();
     
     plt.figure(figsize(12.5, 5));
-    plt.scatter(tf.gather(data, tf.argsort(data)).numpy(), tf.gather(probs_assignments, tf.argsort(data)), cmap = mpl.colors.LinearSegmentedColormap.from_list('BMH', colors), c = (1 - output).numpy(), s = 50);
+    assign_trace = tf.gather(probs_assignments, tf.argsort(data));
+    plt.scatter(tf.gather(data, tf.argsort(data)).numpy(), assign_trace.numpy(), cmap = mpl.colors.LinearSegmentedColormap.from_list('BMH', colors), c = (1 - assign_trace).numpy(), s = 50);
     plt.ylim(-.05, 1.05);
     plt.title('Probability of data point belonging to cluster 0');
     plt.ylabel('probability');
     plt.xlabel('value of data point');
     
     plt.show();
+    
+    x = tf.linspace(20,300,500);
+    mu_mean = tf.math.reduce_mean(mus_extended, axis = -1);
+    sigma_mean = tf.math.reduce_mean(sigmas_extended, axis = -1);
+    prob_mean = tf.math.reduce_mean(model1_probs_extended, axis = -1);
+    
+    plt.hist(data.numpy(), bins = 20, histtype = 'step', density = True, color = 'k', lw = 2, label = 'histogram of data');
+    y = prob_mean * tfp.distributions.Normal(loc = mu_mean[0], scale = sigma_mean[0]).prob(x);
+    plt.plot(x, y, label = 'Cluster 0 (using posterior-mean parameters)', lw = 3);
+    plt.fill_between(x, y, color = colors[1], alpha = 0.3);
 
 def log_prob_generator(data):
     def func(model1_prob, mus, sigmas):
