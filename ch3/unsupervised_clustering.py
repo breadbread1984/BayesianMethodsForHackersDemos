@@ -122,8 +122,8 @@ def main():
     
     dist_0 = tfp.distributions.Normal(loc = tf.math.reduce_mean(mus_extended[:,0]), scale = tf.math.reduce_mean(sigmas_extended[:,0]));
     dist_1 = tfp.distributions.Normal(loc = tf.math.reduce_mean(mus_extended[:,1]), scale = tf.math.reduce_mean(sigmas_extended[:,1]));
-    prob_assignment_1 = dist_1.prob(data);
-    prob_assignment_2 = dist_2.prob(data);
+    prob_assignment_1 = dist_0.prob(data);
+    prob_assignment_2 = dist_1.prob(data);
     probs_assignments = 1. - (prob_assignment_1 / (prob_assignment_1 + prob_assignment_2));
     probs_assignments_inv = 1. - probs_assignments;
     # cluster_probs.shape = (data.shape[0], 2)
@@ -143,7 +143,7 @@ def main():
     plt.show();
     
     plt.figure(figsize(12.5, 5));
-    plt.scatter(tf.gather(data, tf.argsort(data)).numpy(), output, cmap = mpl.colors.LinearSegmentedColormap.from_list('BMH', colors), c = (1 - output).numpy(), s = 50);
+    plt.scatter(tf.gather(data, tf.argsort(data)).numpy(), tf.gather(probs_assignments, tf.argsort(data)), cmap = mpl.colors.LinearSegmentedColormap.from_list('BMH', colors), c = (1 - output).numpy(), s = 50);
     plt.ylim(-.05, 1.05);
     plt.title('Probability of data point belonging to cluster 0');
     plt.ylabel('probability');
