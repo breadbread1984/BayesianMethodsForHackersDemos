@@ -152,15 +152,21 @@ def main():
     
     plt.show();
     
-    x = tf.linspace(20,300,500);
+    x = tf.linspace(20.,300.,500.);
     mu_mean = tf.math.reduce_mean(mus_extended, axis = -1);
     sigma_mean = tf.math.reduce_mean(sigmas_extended, axis = -1);
     prob_mean = tf.math.reduce_mean(model1_probs_extended, axis = -1);
     
     plt.hist(data.numpy(), bins = 20, histtype = 'step', density = True, color = 'k', lw = 2, label = 'histogram of data');
     y = prob_mean * tfp.distributions.Normal(loc = mu_mean[0], scale = sigma_mean[0]).prob(x);
-    plt.plot(x, y, label = 'Cluster 0 (using posterior-mean parameters)', lw = 3);
-    plt.fill_between(x, y, color = colors[1], alpha = 0.3);
+    plt.plot(x.numpy(), y.numpy(), label = 'Cluster 0 (using posterior-mean parameters)', lw = 3);
+    plt.fill_between(x.numpy(), y.numpy(), color = colors[1], alpha = 0.3);
+    y = (1 - prob_mean) * tfp.distributions.Normal(loc = mu_mean[1], scale = sigma_mean[1]).prob(x);
+    plt.plot(x.numpy(), y.numpy(), label = 'Cluster 1 (using posterior-mean parameters)', lw = 3);
+    plt.fill_between(x.numpy(), y.numpy(), color = colors[0], alpha = 0.3);
+    plt.legend(loc = 'upper left');
+    plt.title('Visualizing Clusters using psterior-mean parameters');
+    plt.show();
 
 def log_prob_generator(data):
     def func(model1_prob, mus, sigmas):
